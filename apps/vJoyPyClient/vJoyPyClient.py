@@ -8,9 +8,26 @@ way to do this may be to copy that file to the same directory as your script.
 import pyvjoy
 
 
+def PrintFnNameAndResult(fn, *args, **kwargs):
+  print(fn.__name__, fn(*args, **kwargs))
+
+
 def RunDemo():
-  print(pyvjoy.GetvJoyVersion())
-  print(pyvjoy.GetvJoyProductString())
+  PrintFnNameAndResult(pyvjoy.GetvJoyVersion)
+  PrintFnNameAndResult(pyvjoy.GetvJoyProductString)
+  PrintFnNameAndResult(pyvjoy.GetvJoyManufacturerString)
+  PrintFnNameAndResult(pyvjoy.GetvJoySerialNumberString)
+  try:
+    PrintFnNameAndResult(pyvjoy.DriverMatch)
+  except RuntimeError as e:
+    print(e)
+  PrintFnNameAndResult(pyvjoy.vJoyFfbCap)
+  PrintFnNameAndResult(pyvjoy.GetvJoyMaxDevices)
+  PrintFnNameAndResult(pyvjoy.GetNumberExistingVJD)
+  PrintFnNameAndResult(pyvjoy.ResetAll)
+
+  vjoy_1 = pyvjoy.VjoyDevice(1)
+  PrintFnNameAndResult(vjoy_1.GetOwnerPid)
 
 
 if __name__ == '__main__':
