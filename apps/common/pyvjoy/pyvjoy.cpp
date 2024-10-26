@@ -79,10 +79,6 @@ PYBIND11_MODULE(pyvjoy, pyvjoy_m) {
   pyvjoy_m.def("ResetAll", &vJoyNS::ResetAll,
                "Resets all controls to predefined values in all vJoy devices.");
 
-  // DEBUG
-  pyvjoy_m.def("SetDiscPov", &vJoyNS::SetDiscPov,
-               "SET DISCRETE POV.");
-
   // Information about a vJoy device.
   py::class_<vjoy_modern::VjoyDeviceInfo>(pyvjoy_m, "VjoyDeviceInfo")
       .def_readonly("num_buttons", &vjoy_modern::VjoyDeviceInfo::num_buttons_)
