@@ -13,6 +13,16 @@ namespace pyvjoy {
 PYBIND11_MODULE(pyvjoy, pyvjoy_m) {
   pyvjoy_m.doc() = "Python client library for VJoy";
 
+  // Enums.
+  py::enum_<VjdStat>(pyvjoy_m, "VjdStat")
+      .value("VJD_STAT_OWN", VjdStat::VJD_STAT_OWN)
+      .value("VJD_STAT_FREE", VjdStat::VJD_STAT_FREE)
+      .value("VJD_STAT_BUSY", VjdStat::VJD_STAT_BUSY)
+      .value("VJD_STAT_MISS", VjdStat::VJD_STAT_MISS)
+      .value("VJD_STAT_UNKN", VjdStat::VJD_STAT_UNKN);
+
+  // Structs.
+
   // Generic driver functions.
   pyvjoy_m.def("GetvJoyVersion", &vJoyNS::GetvJoyVersion,
                "Returns the version of the installed vJoy driver.");
@@ -38,6 +48,10 @@ PYBIND11_MODULE(pyvjoy, pyvjoy_m) {
   pyvjoy_m.def("ResetAll", &vJoyNS::ResetAll,
                "Resets all controls to predefined values in all vJoy devices.");
 
+  // DEBUG
+  pyvjoy_m.def("SetDiscPov", &vJoyNS::SetDiscPov,
+               "SET DISCRETE POV.");
+
   // Information about a vJoy device.
   py::class_<vjoy_modern::VjoyDeviceInfo>(pyvjoy_m, "VjoyDeviceInfo")
       .def_readonly("num_buttons", &vjoy_modern::VjoyDeviceInfo::num_buttons_)
@@ -55,7 +69,18 @@ PYBIND11_MODULE(pyvjoy, pyvjoy_m) {
   // A single vJoy device.
   py::class_<vjoy_modern::VjoyDevice>(pyvjoy_m, "VjoyDevice")
       .def(py::init<int>())
-      .def_property_readonly("device_info", &vjoy_modern::VjoyDevice::device_info)
-      .def("GetOwnerPid", &vjoy_modern::VjoyDevice::GetOwnerPid);
+      .def_property_readonly("device_info",
+                             &vjoy_modern::VjoyDevice::device_info)
+      .def("GetOwnerPid", &vjoy_modern::VjoyDevice::GetOwnerPid)
+      .def("GetVJDStatus", &vjoy_modern::VjoyDevice::GetVJDStatus)
+      .def("AcquireVJD", &vjoy_modern::VjoyDevice::AcquireVJD)
+      .def("RelinquishVJD", &vjoy_modern::VjoyDevice::RelinquishVJD)
+      .def("ResetVJD", &vjoy_modern::VjoyDevice::ResetVJD)
+      .def("ResetButtons", &vjoy_modern::VjoyDevice::ResetButtons)
+      .def("ResetPovs", &vjoy_modern::VjoyDevice::ResetPovs)
+      .def("SetAxisByUsage", &vjoy_modern::VjoyDevice::SetAxisByUsage)
+      .def("SetAxisByNumber", &vjoy_modern::VjoyDevice::SetAxisByNumber)
+      .def("SetBtn", &vjoy_modern::VjoyDevice::SetBtn)
+      .def("SetPov", &vjoy_modern::VjoyDevice::SetPov);
 }
 }  // namespace pyvjoy

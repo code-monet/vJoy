@@ -2,12 +2,17 @@
 
 #pragma once
 
+#include <Windows.h>
+
 #include <array>
 #include <exception>
 #include <format>
 #include <string>
 #include <tuple>
-#include <Windows.h>
+
+#include "public.h"
+
+enum VjdStat;
 
 namespace vjoy_modern {
 
@@ -49,6 +54,18 @@ struct VjoyDeviceInfo {
   std::array<LONG, kMaxAxes> axis_max_by_position_;
 };
 
+enum class AxisUsage : UINT {
+  X = HID_USAGE_X,
+  Y = HID_USAGE_Y,
+  Z = HID_USAGE_Z,
+  Rx = HID_USAGE_RX,
+  Ry = HID_USAGE_RY,
+  Rz = HID_USAGE_RZ,
+  SLIDER_0 = HID_USAGE_SL0,
+  SLIDER_1 = HID_USAGE_SL1,
+  // The rest can be added if the need arises.
+};
+
 // All the functions in this class will throw runtime error if they can't
 // communicate with the driver.
 class VjoyDevice {
@@ -62,8 +79,30 @@ class VjoyDevice {
   // Negative values indicate no owner or an error condition.
   // See GetOwnerPid in vJoyInterface.cpp for details.
   int GetOwnerPid() const;
+  VjdStat GetVJDStatus() const;
+
+  void AcquireVJD() const;
+  void RelinquishVJD() const;
+  void ResetVJD() const;
+  void ResetButtons() const;
+  void ResetPovs() const;
+
+  // Not a const reference, for 1:1 behavior with Python binding.
+  void UpdateVJD(JOYSTICK_POSITION& pData) const;
+  // normalized_valuelies in [-1, 1].
+  void SetAxisByUsage(float normalized_value, AxisUsage axis_usage) const;
+  // Axis numbers start from 1.
+  void SetAxisByNumber(float normalized_value, int axis_number) const;
+  // Button numbers start from 1.
+  void SetBtn(bool is_on, int button_number) const;
+  // POV numbers start from 1.
+  // If setting on a discrete hat, the closest of 8 possible discrete positions
+  // will be set. See DirectInput documentation for DIJOYSTATE2 for valid
+  // values.
+  void SetPov(int value, int pov_number) const;
 
  private:
+  void SetAxis(float normalized_value, int usage) const;
   const int device_index_;
   VjoyDeviceInfo device_info_;
 };

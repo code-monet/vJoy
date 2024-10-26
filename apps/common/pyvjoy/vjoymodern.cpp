@@ -4,6 +4,7 @@
 
 #include <exception>
 #include <format>
+#include <iostream>
 #include <tuple>
 
 #include "public.h"
@@ -125,17 +126,14 @@ VjoyDevice::VjoyDevice(int device_number) : device_index_(device_number) {
   for (auto usage : kAxisUsages) {
     if (vJoyNS::GetVJDAxisExist(device_index_, usage)) {
       LONG axis_min;
-      if (!vJoyNS::GetVJDAxisMin(
-              device_index_, usage,
-              &axis_min)) {
+      if (!vJoyNS::GetVJDAxisMin(device_index_, usage, &axis_min)) {
         // Axes not enabled still show up as present, but don't return ranges.
         break;
       }
       LONG axis_max;
-      if (!vJoyNS::GetVJDAxisMax(
-              device_index_, usage,
-              &axis_max)) {
-        // Not expected - should have encountered break in the previous if block.
+      if (!vJoyNS::GetVJDAxisMax(device_index_, usage, &axis_max)) {
+        // Not expected - should have encountered break in the previous if
+        // block.
         break;
       }
       auto axis_i = device_info_.num_axes_;
@@ -155,5 +153,133 @@ VjoyDeviceInfo VjoyDevice::device_info() const { return device_info_; }
 
 int VjoyDevice::GetOwnerPid() const {
   return vJoyNS::GetOwnerPid(device_index_);
+}
+
+VjdStat VjoyDevice::GetVJDStatus() const {
+  return vJoyNS::GetVJDStatus(device_index_);
+}
+
+void VjoyDevice::AcquireVJD() const {
+  if (!vJoyNS::AcquireVJD(device_index_)) {
+    throw std::runtime_error("Could not acquire the vJoy device");
+  }
+}
+
+void VjoyDevice::RelinquishVJD() const { vJoyNS::RelinquishVJD(device_index_); }
+
+void VjoyDevice::ResetVJD() const {
+  if (!vJoyNS::ResetVJD(device_index_)) {
+    throw std::runtime_error("Could not reset the vJoy device");
+  }
+}
+
+void VjoyDevice::ResetButtons() const {
+  if (!vJoyNS::ResetButtons(device_index_)) {
+    throw std::runtime_error("Could not reset buttons on the vJoy device");
+  }
+}
+
+void VjoyDevice::ResetPovs() const {
+  if (!vJoyNS::ResetPovs(device_index_)) {
+    throw std::runtime_error("Could not reset POVs on the vJoy device");
+  }
+}
+
+void VjoyDevice::UpdateVJD(JOYSTICK_POSITION& pData) const {
+  if (!vJoyNS::UpdateVJD(device_index_, &pData)) {
+    throw std::runtime_error(
+        "Could not update input states on the vJoy device");
+  }
+}
+
+void VjoyDevice::SetAxisByUsage(float value, AxisUsage axis_usage) const {
+  SetAxis(value, static_cast<UINT>(axis_usage));
+}
+
+void VjoyDevice::SetAxisByNumber(float value, int axis_number) const {
+  auto axis_index = axis_number - 1;
+  if (axis_index >= 0 && axis_index < device_info_.num_axes_) {
+    auto usage = device_info_.axis_usage_by_position_[axis_index];
+    SetAxis(value, usage);
+  } else {
+    throw InvalidArgumentError<UINT>("Invalid axis number for vJoy device",
+                                     axis_number);
+  }
+}
+
+void VjoyDevice::SetBtn(bool is_on, int button_number) const {
+  if (button_number > 0 && button_number <= device_info_.num_buttons_) {
+    if (!vJoyNS::SetBtn(is_on, device_index_, button_number)) {
+      throw std::runtime_error("Could not set state for button");
+    }
+  } else {
+    throw InvalidArgumentError<UCHAR>("Invalid button number for vJoy device",
+                                      button_number);
+  }
+}
+
+void VjoyDevice::SetPov(int value, int pov_number) const {
+  auto pov_index = pov_number - 1;
+  if (value == -1 || value == 0xFFFF) {
+    value = 0xFFFF;  // Set notes for DIJOYSTATE2.
+  } else if (value < -1 || value >= 36000) {
+    throw InvalidArgumentError<int>("Invalid POV value", value);
+  }
+  if (pov_index >= 0 && pov_index < device_info_.num_pov_hats_) {
+    auto is_continuous = device_info_.hat_is_continuous_[pov_index];
+    bool outcome = false;
+    if (is_continuous) {
+      outcome = vJoyNS::SetContPov(value, device_index_, pov_number);
+    } else {
+      int discrete_position = 0;
+      if (value < 4500 || value >= 4500 * 7) {
+        discrete_position = 0x00;  // North.
+      } else if (value < 4500 * 3) {
+        discrete_position = 0x01;  // East.
+      } else if (value < 4500 * 5) {
+        discrete_position = 0x02;  // South.
+      } else if (value < 4500 * 7) {
+        discrete_position = 0x03;  // West.
+      } else {
+        discrete_position = 0x0F;  // Centered.
+      }
+      outcome = vJoyNS::SetDiscPov(discrete_position, device_index_, pov_number);
+    }
+    if (!outcome) {
+      throw std::runtime_error("Could not set POV position");
+    }
+  } else {
+    throw InvalidArgumentError<UCHAR>("Invalid POV number for vJoy device",
+                                      pov_number);
+  }
+}
+
+void VjoyDevice::SetAxis(float normalized_value, int usage) const {
+  if (usage < HID_USAGE_X || usage > HID_USAGE_THROTTLE) {
+    throw InvalidArgumentError<int>("Invalid axis usage value", usage);
+  }
+  if (normalized_value < -1 || normalized_value > 1) {
+    throw InvalidArgumentError<float>(
+        "Normalized value is out of bounds [-1, 1]", normalized_value);
+  }
+  for (int i = 0; i < device_info_.num_axes_; ++i) {
+    if (device_info_.axis_usage_by_position_[i] == usage) {
+      auto axis_max = device_info_.axis_max_by_position_[i];
+      auto axis_min = device_info_.axis_min_by_position_[i];
+      LONG value =
+          static_cast<LONG>(axis_min + ((1 + normalized_value) * (axis_max - axis_min) / 2));
+      if (value < axis_min) {
+        value = axis_min;
+      } else if (value > axis_max) {
+        value = axis_max;
+      }
+      if (!vJoyNS::SetAxis(value, device_index_, usage)) {
+        throw std::runtime_error("Could not set value on axis");
+      }
+      return;
+    }
+  }
+  throw InvalidArgumentError<UINT>("vJoy device does not have axis with usage",
+                                   usage);
 }
 }  // namespace vjoy_modern
