@@ -49,23 +49,41 @@ def RunDemo():
   # You can monitor these using JoyMonitor.exe.
   vjoy_1.AcquireVJD()
   try:
+    # Setting multiple inputs at the same time.
+    # These are raw values, as used by the C API.
+    position_data = pyvjoy.JoystickPosition()
+    position_data.wAxisX = 1000
+    position_data.wSlider = 2000
+    position_data.wDial = 3000  # a.k.a slider 2.
+    position_data.lButtons = 0xABCD
+    position_data.bHats = 0x0123
+    vjoy_1.UpdateVJD(position_data)
+    SleepBetweenInputs(1)
+
+    # Setting individual inputs. See notes on helper methods.
     for btn_i in range(1, vjoy_1.device_info.num_buttons + 1):
       vjoy_1.SetBtn(True, btn_i)
       SleepBetweenInputs()
+      vjoy_1.SetBtn(False, btn_i)
     vjoy_1.ResetButtons()
     for pov_position in [-1, 0, 5_000, 10_000, 20_000, 30_000, 35_999]:
       for pov_i in range(1, vjoy_1.device_info.num_pov_hats + 1):
+        # This is a helper method. For continuous hats, the value is set
+        # directly. For discrete hats, the closest discrete position is
+        # set.
         vjoy_1.SetPov(pov_position, pov_i)
         SleepBetweenInputs()
     vjoy_1.ResetPovs()
     for axis_value in [-1, -0.5, 0, 0.5, 1]:
       for axis_i in range(1, vjoy_1.device_info.num_axes + 1):
+        # This is a helper method. axis_value is a normalized value
+        # i.e. in range [-1, 1]. You don't need to know the axis
+        # logical min and max values.
         vjoy_1.SetAxisByNumber(axis_value, axis_i)
         SleepBetweenInputs()
-    for axis_i in range(1, vjoy_1.device_info.num_axes + 1):
-      # Note that there isn't a standard "rest" state for axes,
-      # it depends on the device.
-      vjoy_1.SetAxisByNumber(0, axis_i)
+    for axis_usage in vjoy_1.device_info.axis_usage_by_position:
+      # Equivalent of the C API method SetAxis.
+      vjoy_1.SetAxisByUsage(0, pyvjoy.AxisUsage(axis_usage))
     vjoy_1.ResetVJD()
   finally:
     vjoy_1.RelinquishVJD()

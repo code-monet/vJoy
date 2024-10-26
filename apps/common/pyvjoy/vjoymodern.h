@@ -63,6 +63,7 @@ enum class AxisUsage : UINT {
   Rz = HID_USAGE_RZ,
   SLIDER_0 = HID_USAGE_SL0,
   SLIDER_1 = HID_USAGE_SL1,
+  DIAL = HID_USAGE_SL1,
   // The rest can be added if the need arises.
 };
 
