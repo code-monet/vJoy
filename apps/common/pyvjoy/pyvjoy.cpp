@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include "vjoyinterface.h"
 #include "vjoymodern.h"
@@ -37,9 +38,24 @@ PYBIND11_MODULE(pyvjoy, pyvjoy_m) {
   pyvjoy_m.def("ResetAll", &vJoyNS::ResetAll,
                "Resets all controls to predefined values in all vJoy devices.");
 
+  // Information about a vJoy device.
+  py::class_<vjoy_modern::VjoyDeviceInfo>(pyvjoy_m, "VjoyDeviceInfo")
+      .def_readonly("num_buttons", &vjoy_modern::VjoyDeviceInfo::num_buttons_)
+      .def_readonly("num_axes", &vjoy_modern::VjoyDeviceInfo::num_axes_)
+      .def_readonly("num_pov_hats", &vjoy_modern::VjoyDeviceInfo::num_pov_hats_)
+      .def_readonly("hat_is_continuous",
+                    &vjoy_modern::VjoyDeviceInfo::hat_is_continuous_)
+      .def_readonly("axis_usage_by_position",
+                    &vjoy_modern::VjoyDeviceInfo::axis_usage_by_position_)
+      .def_readonly("axis_min_by_position",
+                    &vjoy_modern::VjoyDeviceInfo::axis_min_by_position_)
+      .def_readonly("axis_max_by_position",
+                    &vjoy_modern::VjoyDeviceInfo::axis_max_by_position_);
+
   // A single vJoy device.
   py::class_<vjoy_modern::VjoyDevice>(pyvjoy_m, "VjoyDevice")
       .def(py::init<int>())
+      .def_property_readonly("device_info", &vjoy_modern::VjoyDevice::device_info)
       .def("GetOwnerPid", &vjoy_modern::VjoyDevice::GetOwnerPid);
 }
 }  // namespace pyvjoy

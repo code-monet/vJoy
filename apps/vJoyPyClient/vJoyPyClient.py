@@ -28,6 +28,13 @@ def RunDemo():
 
   vjoy_1 = pyvjoy.VjoyDevice(1)
   PrintFnNameAndResult(vjoy_1.GetOwnerPid)
+  print('vJoy device 1 num buttons:', vjoy_1.device_info.num_buttons)
+  print('vJoy device 1 num axes:', vjoy_1.device_info.num_axes)
+  print('Axes usage by position:', vjoy_1.device_info.axis_usage_by_position)
+  print('Axes min values:', vjoy_1.device_info.axis_min_by_position)
+  print('Axes max values:', vjoy_1.device_info.axis_max_by_position)
+  print('vJoy device 1 num POV hats:', vjoy_1.device_info.num_pov_hats)
+  print('POV continuous hats:', vjoy_1.device_info.hat_is_continuous)
 
 
 if __name__ == '__main__':

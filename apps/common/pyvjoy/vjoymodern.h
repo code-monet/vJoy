@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <array>
 #include <exception>
 #include <format>
 #include <string>
@@ -37,9 +38,15 @@ int GetvJoyMaxDevices();
 int GetNumberExistingVJD();
 
 struct VjoyDeviceInfo {
-  int num_buttons;
-  int num_axes;
-  int num_pov_hats;
+  int num_buttons_;
+  int num_axes_;
+  int num_pov_hats_;
+  static constexpr int kMaxHats = 4;  // DirectInput limit.
+  std::array<bool, kMaxHats> hat_is_continuous_;
+  static constexpr int kMaxAxes = 8;  // DirectInput limit.
+  std::array<UINT, kMaxAxes> axis_usage_by_position_;
+  std::array<LONG, kMaxAxes> axis_min_by_position_;
+  std::array<LONG, kMaxAxes> axis_max_by_position_;
 };
 
 // All the functions in this class will throw runtime error if they can't
@@ -49,12 +56,15 @@ class VjoyDevice {
   // Initialize with the given device number (1-indexed).
   // Throws InvalidArgumentError if specified device does not exist.
   explicit VjoyDevice(int device_number);
+  // Returns a copy - suitable for Python binding.
+  VjoyDeviceInfo device_info() const;
 
   // Negative values indicate no owner or an error condition.
   // See GetOwnerPid in vJoyInterface.cpp for details.
-  int GetOwnerPid();
+  int GetOwnerPid() const;
 
  private:
   const int device_index_;
+  VjoyDeviceInfo device_info_;
 };
 }  // namespace vjoy_modern
