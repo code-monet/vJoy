@@ -1,4 +1,7 @@
 # vJoy
+## Latest signed version
+The latest Windows 10 and Windows 11 signed version (2.2.2.0) can be found at [BrunnerInnovation/vJoy](https://github.com/BrunnerInnovation/vJoy)
+
 Virtual Joystick
 ---
 
