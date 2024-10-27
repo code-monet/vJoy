@@ -258,16 +258,16 @@ void VjoyDevice::SetAxis(float normalized_value, int usage) const {
   if (usage < HID_USAGE_X || usage > HID_USAGE_THROTTLE) {
     throw InvalidArgumentError<int>("Invalid axis usage value", usage);
   }
-  if (normalized_value < -1 || normalized_value > 1) {
+  if (normalized_value < 0 || normalized_value > 1) {
     throw InvalidArgumentError<float>(
-        "Normalized value is out of bounds [-1, 1]", normalized_value);
+        "Normalized value is out of bounds [0, 1]", normalized_value);
   }
   for (int i = 0; i < device_info_.num_axes_; ++i) {
     if (device_info_.axis_usage_by_position_[i] == usage) {
       auto axis_max = device_info_.axis_max_by_position_[i];
       auto axis_min = device_info_.axis_min_by_position_[i];
       LONG value =
-          static_cast<LONG>(axis_min + ((1 + normalized_value) * (axis_max - axis_min) / 2));
+          static_cast<LONG>(axis_min + (normalized_value * (axis_max - axis_min)));
       if (value < axis_min) {
         value = axis_min;
       } else if (value > axis_max) {

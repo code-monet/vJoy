@@ -90,7 +90,7 @@ class VjoyDevice {
 
   // Not a const reference, for 1:1 behavior with Python binding.
   void UpdateVJD(JOYSTICK_POSITION& pData) const;
-  // normalized_valuelies in [-1, 1].
+  // normalized_value lies in [0, 1].
   void SetAxisByUsage(float normalized_value, AxisUsage axis_usage) const;
   // Axis numbers start from 1.
   void SetAxisByNumber(float normalized_value, int axis_number) const;

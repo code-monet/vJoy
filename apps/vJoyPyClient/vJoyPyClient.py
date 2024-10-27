@@ -76,10 +76,10 @@ def RunDemo():
                 vjoy_1.SetPov(pov_position, pov_i)
                 SleepBetweenInputs()
         vjoy_1.ResetPovs()
-        for axis_value in [-1, -0.5, 0, 0.5, 1]:
+        for axis_value in [0, 0.25, 0.5, 0.75, 1]:
             for axis_i in range(1, vjoy_1.device_info.num_axes + 1):
                 # This is a helper method. axis_value is a normalized value
-                # i.e. in range [-1, 1]. You don't need to know the axis
+                # i.e. in range [0, 1]. You don't need to know the axis
                 # logical min and max values.
                 vjoy_1.SetAxisByNumber(axis_value, axis_i)
                 SleepBetweenInputs()
