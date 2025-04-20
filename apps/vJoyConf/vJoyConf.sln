@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vJoyConf", "vJoyConf.vcxproj", "{947FCEFB-F14B-4E8D-A729-727630D84C00}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vJoyConf", "vJoyConf.vcxproj", "{DB7872FF-B0E0-46F6-A070-F059BBBAC659}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vJoyConfig", "vJoyConfig\vJoyConfig.vcxproj", "{DF01DF55-7429-484F-BB05-3717830A2F22}"
 EndProject
@@ -23,14 +23,14 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{947FCEFB-F14B-4E8D-A729-727630D84C00}.Debug|Win32.ActiveCfg = Debug|Win32
-		{947FCEFB-F14B-4E8D-A729-727630D84C00}.Debug|Win32.Build.0 = Debug|Win32
-		{947FCEFB-F14B-4E8D-A729-727630D84C00}.Debug|x64.ActiveCfg = Debug|x64
-		{947FCEFB-F14B-4E8D-A729-727630D84C00}.Debug|x64.Build.0 = Debug|x64
-		{947FCEFB-F14B-4E8D-A729-727630D84C00}.Release|Win32.ActiveCfg = Release|Win32
-		{947FCEFB-F14B-4E8D-A729-727630D84C00}.Release|Win32.Build.0 = Release|Win32
-		{947FCEFB-F14B-4E8D-A729-727630D84C00}.Release|x64.ActiveCfg = Release|x64
-		{947FCEFB-F14B-4E8D-A729-727630D84C00}.Release|x64.Build.0 = Release|x64
+		{DB7872FF-B0E0-46F6-A070-F059BBBAC659}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DB7872FF-B0E0-46F6-A070-F059BBBAC659}.Debug|Win32.Build.0 = Debug|Win32
+		{DB7872FF-B0E0-46F6-A070-F059BBBAC659}.Debug|x64.ActiveCfg = Debug|x64
+		{DB7872FF-B0E0-46F6-A070-F059BBBAC659}.Debug|x64.Build.0 = Debug|x64
+		{DB7872FF-B0E0-46F6-A070-F059BBBAC659}.Release|Win32.ActiveCfg = Release|Win32
+		{DB7872FF-B0E0-46F6-A070-F059BBBAC659}.Release|Win32.Build.0 = Release|Win32
+		{DB7872FF-B0E0-46F6-A070-F059BBBAC659}.Release|x64.ActiveCfg = Release|x64
+		{DB7872FF-B0E0-46F6-A070-F059BBBAC659}.Release|x64.Build.0 = Release|x64
 		{DF01DF55-7429-484F-BB05-3717830A2F22}.Debug|Win32.ActiveCfg = Debug|Win32
 		{DF01DF55-7429-484F-BB05-3717830A2F22}.Debug|Win32.Build.0 = Debug|Win32
 		{DF01DF55-7429-484F-BB05-3717830A2F22}.Debug|x64.ActiveCfg = Debug|x64

@@ -960,6 +960,8 @@ buttons: Array of buttons. Every entry represents a button. True = Implemented b
 axes: Array of axes. Every entry represents an axis. True = Implemented axis.
 nPovHatsCont: Number of implemented Continuous POV Hat switches
 nPovHatsDir: Number of implemented 5-state POV Hat switches
+ReportId: The HID report ID. We use it for the different vJoy instances.
+Ffb: Whether to add force feedback descriptors.
 
 Return:
 Positive value: Size of HID Report Descriptor (output buffer) in bytes.
@@ -986,23 +988,24 @@ int CreateHidReportDesc(void** data, UINT nButtons, bool* axes, int nPovHatsCont
     if (nPovHatsDir>VJOY_NUMBER_OF_HAT)
         nPovHatsDir = VJOY_NUMBER_OF_HAT;
 
-    BYTE AxesHID[] {
-        HID_USAGE_X,
-        HID_USAGE_Y,
-        HID_USAGE_Z,
-        HID_USAGE_RX,
-        HID_USAGE_RY,
-        HID_USAGE_RZ,
-        HID_USAGE_SL0,
-        HID_USAGE_SL1,
-        HID_USAGE_WHL,
-        HID_USAGE_ACCELERATOR,
-        HID_USAGE_BRAKE,
-        HID_USAGE_CLUTCH,
-        HID_USAGE_STEERING,
-        HID_USAGE_AILERON,
-        HID_USAGE_RUDDER,
-        HID_USAGE_THROTTLE,
+    // Usage page and usage for axes. See "Usage tables" at https://www.usb.org/hid
+    BYTE AxesHID[][2] {
+        {HID_USAGE_PAGE_GENERIC, HID_USAGE_X},
+        {HID_USAGE_PAGE_GENERIC, HID_USAGE_Y},
+        {HID_USAGE_PAGE_GENERIC, HID_USAGE_Z},
+        {HID_USAGE_PAGE_GENERIC, HID_USAGE_RX},
+        {HID_USAGE_PAGE_GENERIC, HID_USAGE_RY},
+        {HID_USAGE_PAGE_GENERIC, HID_USAGE_RZ},
+        {HID_USAGE_PAGE_GENERIC, HID_USAGE_SL0},
+        {HID_USAGE_PAGE_GENERIC, HID_USAGE_SL1},
+        {HID_USAGE_PAGE_GENERIC, HID_USAGE_WHL},
+        {HID_USAGE_PAGE_SIMULATION, HID_USAGE_ACCELERATOR},
+        {HID_USAGE_PAGE_SIMULATION, HID_USAGE_BRAKE},
+        {HID_USAGE_PAGE_SIMULATION, HID_USAGE_CLUTCH},
+        {HID_USAGE_PAGE_SIMULATION, HID_USAGE_STEERING},
+        {HID_USAGE_PAGE_SIMULATION, HID_USAGE_AILERON},
+        {HID_USAGE_PAGE_SIMULATION, HID_USAGE_RUDDER},
+        {HID_USAGE_PAGE_SIMULATION, HID_USAGE_THROTTLE},
     };
 
     /* Create a data buffer large enough to hold the resulting HID Report Descriptor */
@@ -1021,8 +1024,6 @@ int CreateHidReportDesc(void** data, UINT nButtons, bool* axes, int nPovHatsCont
     NEXT_BYTE(buffer, HIDP_MAIN_COLLECTION_APP);
 
     /* Collection 1 */
-    NEXT_BYTE(buffer, HIDP_GLOBAL_USAGE_PAGE_1);		// USAGE_PAGE(Generic Desktop):		05 01
-    NEXT_BYTE(buffer, HID_USAGE_PAGE_GENERIC);
     NEXT_BYTE(buffer, HIDP_GLOBAL_REPORT_ID);			//	REPORT_ID (x)					85 ID
     NEXT_BYTE(buffer, ReportId);
     NEXT_BYTE(buffer, HIDP_LOCAL_USAGE_1);			// USAGE(Pointer):					09 01
@@ -1041,10 +1042,15 @@ int CreateHidReportDesc(void** data, UINT nButtons, bool* axes, int nPovHatsCont
     /** Collection 2 **/
     /* Loop on fitst Axes */
     for (int i = 0; i<VJOY_NUMBER_OF_AXES; i++) {
+        BYTE currentPage = AxesHID[i][0];
+		BYTE currentUsage = AxesHID[i][1];
+
         if (axes[i]) {
             // Insert Axis
-            NEXT_BYTE(buffer, HIDP_LOCAL_USAGE_1);	// USAGE(X+offset):					0x09 0x30+i
-            NEXT_BYTE(buffer, AxesHID[i]);
+            NEXT_BYTE(buffer, HIDP_GLOBAL_USAGE_PAGE_1); // USAGE_PAGE(generic or sim): 0x05 (0x01 or 0x02)
+            NEXT_BYTE(buffer, currentPage);
+            NEXT_BYTE(buffer, HIDP_LOCAL_USAGE_1);      // USAGE(axis):     0x09 (generic/0x30-0x39 or sim/0xB0-0xBF)
+            NEXT_BYTE(buffer, currentUsage);
             NEXT_BYTE(buffer, HIDP_MAIN_INPUT_1);		// INPUT (Data,Var,Abs):			0x81 0x02
             NEXT_BYTE(buffer, 0x02);
         } else {
@@ -1075,6 +1081,8 @@ int CreateHidReportDesc(void** data, UINT nButtons, bool* axes, int nPovHatsCont
 
         // Insert 1-4 5-state POVs
         for (int i = 1; i <= nPovHatsDir; i++) {
+            NEXT_BYTE(buffer, HIDP_GLOBAL_USAGE_PAGE_1); // USAGE_PAGE(generic): 0x05 0x01
+            NEXT_BYTE(buffer, HID_USAGE_PAGE_GENERIC);
             NEXT_BYTE(buffer, HIDP_LOCAL_USAGE_1);			// USAGE(Hat switch):		0x09 0x39
             NEXT_BYTE(buffer, HID_USAGE_GENERIC_HATSWITCH);
             NEXT_BYTE(buffer, HIDP_MAIN_INPUT_1);				// INPUT (Data,Var,Abs):	0x81 0x02
@@ -1109,6 +1117,8 @@ int CreateHidReportDesc(void** data, UINT nButtons, bool* axes, int nPovHatsCont
 
         // Insert 1-4 continuous POVs
         for (int i = 1; i <= nPovHatsCont; i++) {
+            NEXT_BYTE(buffer, HIDP_GLOBAL_USAGE_PAGE_1); // USAGE_PAGE(generic): 0x05 0x01
+            NEXT_BYTE(buffer, HID_USAGE_PAGE_GENERIC);
             NEXT_BYTE(buffer, HIDP_LOCAL_USAGE_1);			// USAGE(Hat switch):		0x09 0x39
             NEXT_BYTE(buffer, HID_USAGE_GENERIC_HATSWITCH);
             NEXT_BYTE(buffer, HIDP_MAIN_INPUT_1);				// INPUT (Data,Var,Abs):	0x81 0x02
