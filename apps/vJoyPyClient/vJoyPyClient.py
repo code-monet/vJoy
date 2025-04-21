@@ -47,8 +47,8 @@ def RunDemo():
     print("POV continuous hats:", vjoy_1.device_info.hat_is_continuous)
     PrintFnNameAndResult(vjoy_1.GetVJDStatus)
 
-    # Acquire device and change some controls.
-    # You can monitor these using JoyMonitor.exe.
+    print("Acquiring device and change some controls")
+    print("You can monitor these using JoyMonitor.exe.")
     vjoy_1.AcquireVJD()
     try:
         # Setting multiple inputs at the same time.

@@ -20,14 +20,8 @@ template <typename T>
 class InvalidArgumentError : public std::invalid_argument {
  public:
   InvalidArgumentError(const char* error_msg, const T& argument)
-      : std::invalid_argument(error_msg), argument_(argument) {}
-  const char* what() {
-    return std::format("{}: {}", std::string(std::runtime_error::what()),
-                       argument_);
-  }
-
- private:
-  T argument_;
+      : std::invalid_argument(
+            std::format("{}: {}", std::string(error_msg), argument)) {}
 };
 
 // All the following functions will throw runtime error if they can't
@@ -55,6 +49,7 @@ struct VjoyDeviceInfo {
 };
 
 enum class AxisUsage : UINT {
+  // Usage page: Generic Desktop.
   X = HID_USAGE_X,
   Y = HID_USAGE_Y,
   Z = HID_USAGE_Z,
@@ -63,8 +58,15 @@ enum class AxisUsage : UINT {
   Rz = HID_USAGE_RZ,
   SLIDER_0 = HID_USAGE_SL0,
   SLIDER_1 = HID_USAGE_SL1,
-  DIAL = HID_USAGE_SL1,
-  // The rest can be added if the need arises.
+  DIAL = HID_USAGE_WHL,
+  // Usage page: Simulation.
+  AILERON = HID_USAGE_AILERON,
+  RUDDER = HID_USAGE_RUDDER,
+  THROTTLE = HID_USAGE_THROTTLE,
+  ACCELERATOR = HID_USAGE_ACCELERATOR,
+  BRAKE = HID_USAGE_BRAKE,
+  CLUTCH = HID_USAGE_CLUTCH,
+  STEERING = HID_USAGE_STEERING,
 };
 
 // All the functions in this class will throw runtime error if they can't

@@ -13,12 +13,12 @@
 namespace {
 static constexpr int kMaxAxisUsages = 17;
 static constexpr std::array<UINT, kMaxAxisUsages> kAxisUsages = {
-    HID_USAGE_X,      HID_USAGE_Y,           HID_USAGE_Z,
-    HID_USAGE_RX,     HID_USAGE_RY,          HID_USAGE_RZ,
-    HID_USAGE_SL0,    HID_USAGE_SL1,         HID_USAGE_WHL,
-    HID_USAGE_POV,    HID_USAGE_ACCELERATOR, HID_USAGE_BRAKE,
-    HID_USAGE_CLUTCH, HID_USAGE_STEERING,    HID_USAGE_AILERON,
-    HID_USAGE_RUDDER, HID_USAGE_THROTTLE};
+    HID_USAGE_X,           HID_USAGE_Y,       HID_USAGE_Z,
+    HID_USAGE_RX,          HID_USAGE_RY,      HID_USAGE_RZ,
+    HID_USAGE_SL0,         HID_USAGE_SL1,     HID_USAGE_WHL,
+    HID_USAGE_ACCELERATOR, HID_USAGE_BRAKE,   HID_USAGE_CLUTCH,
+    HID_USAGE_STEERING,    HID_USAGE_AILERON, HID_USAGE_RUDDER,
+    HID_USAGE_THROTTLE};
 }  // anonymous namespace.
 
 namespace vjoy_modern {
@@ -128,13 +128,13 @@ VjoyDevice::VjoyDevice(int device_number) : device_index_(device_number) {
       LONG axis_min;
       if (!vJoyNS::GetVJDAxisMin(device_index_, usage, &axis_min)) {
         // Axes not enabled still show up as present, but don't return ranges.
-        break;
+        continue;
       }
       LONG axis_max;
       if (!vJoyNS::GetVJDAxisMax(device_index_, usage, &axis_max)) {
         // Not expected - should have encountered break in the previous if
         // block.
-        break;
+        continue;
       }
       auto axis_i = device_info_.num_axes_;
       device_info_.axis_usage_by_position_[axis_i] = usage;
@@ -255,7 +255,7 @@ void VjoyDevice::SetPov(int value, int pov_number) const {
 }
 
 void VjoyDevice::SetAxis(float normalized_value, int usage) const {
-  if (usage < HID_USAGE_X || usage > HID_USAGE_THROTTLE) {
+  if (usage < HID_USAGE_X || usage > HID_USAGE_STEERING) {
     throw InvalidArgumentError<int>("Invalid axis usage value", usage);
   }
   if (normalized_value < 0 || normalized_value > 1) {
