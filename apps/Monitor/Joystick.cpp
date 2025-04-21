@@ -263,7 +263,7 @@ HRESULT InitDirectInput( HWND hDlg )
 
 //-----------------------------------------------------------------------------
 // Enum each PNP device using WMI and check each device ID to see if it contains 
-// "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then it’s an XInput device
+// "IG_" (ex. "VID_045E&PID_028E&IG_00").  If it does, then itâ€™s an XInput device
 // Unfortunately this information can not be found by just using DirectInput.
 // Checking against a VID/PID of 0x028E/0x045E won't find 3rd party or future 
 // XInput devices.
@@ -335,7 +335,7 @@ HRESULT SetupForIsXInputDevice()
             hr = pDevices[iDevice]->Get( bstrDeviceID, 0L, &var, NULL, NULL );
             if( SUCCEEDED( hr ) && var.vt == VT_BSTR && var.bstrVal != NULL )
             {
-                // Check if the device ID contains "IG_".  If it does, then it’s an XInput device
+                // Check if the device ID contains "IG_".  If it does, then itâ€™s an XInput device
                 // Unfortunately this information can not be found by just using DirectInput 
                 if( wcsstr( var.bstrVal, L"IG_" ) )
                 {
@@ -452,10 +452,9 @@ BOOL CALLBACK EnumJoysticksCallback( const DIDEVICEINSTANCE* pdidInstance,
 
 
 
-
 //-----------------------------------------------------------------------------
 // Name: EnumObjectsCallback()
-// Desc: Callback function for enumerating objects (axes, buttons, POVs) on a 
+// Desc: Callback function for enumerating objects (axes, buttons, POVs) on a
 //       Joystick. This function enables user interface elements for objects
 //       that are found to exist, and scales axes min/max values.
 //-----------------------------------------------------------------------------
@@ -463,110 +462,50 @@ BOOL CALLBACK EnumObjectsCallback( const DIDEVICEOBJECTINSTANCE* pdidoi,
                                    VOID* pContext )
 {
     HWND hDlg = ( HWND )pContext;
-
-    static int nSliderCount = 0;  // Number of returned slider controls
-    static int nPOVCount = 0;     // Number of returned POV controls
+    DWORD dwObjType = DIDFT_GETTYPE(pdidoi->dwType); // Get the object type (axis, button, pov)
+    DWORD dwInstance = DIDFT_GETINSTANCE(pdidoi->dwType); // Get the instance number (0-based index)
 
     // For axes that are returned, set the DIPROP_RANGE property for the
     // enumerated axis in order to scale min/max values.
-    if( pdidoi->dwType & DIDFT_AXIS )
+    if( dwObjType & DIDFT_AXIS )
     {
         DIPROPRANGE diprg;
-        diprg.diph.dwSize = sizeof( DIPROPRANGE );
+        diprg.diph.dwSize       = sizeof( DIPROPRANGE );
         diprg.diph.dwHeaderSize = sizeof( DIPROPHEADER );
-        diprg.diph.dwHow = DIPH_BYID;
-        diprg.diph.dwObj = pdidoi->dwType; // Specify the enumerated axis
-        diprg.lMin = -1000;
-        diprg.lMax = +1000;
+        diprg.diph.dwHow        = DIPH_BYID;
+        diprg.diph.dwObj        = pdidoi->dwType; // Specify the enumerated axis
+        diprg.lMin              = -1000;
+        diprg.lMax              = +1000;
 
         // Set the range for the axis
         if( FAILED( g_pJoystick->SetProperty( DIPROP_RANGE, &diprg.diph ) ) )
-            return DIENUM_STOP;
-
+            return DIENUM_STOP; // Stop enumeration on error
     }
 
-
-    // Set the UI to reflect what objects the Joystick supports
-    if( pdidoi->guidType == GUID_XAxis )
+    // --- Axes & Sliders ---
+    if ( dwObjType & DIDFT_AXIS && dwInstance < 8 ) // Check if it's an axis/slider within our expected range
     {
-        EnableWindow( GetDlgItem( hDlg, IDC_X_AXIS ), TRUE );
-        EnableWindow( GetDlgItem( hDlg, IDC_X_AXIS_TEXT ), TRUE );
+        // Enable the corresponding UI elements
+        EnableWindow( GetDlgItem( hDlg, IDC_AXES + dwInstance ), TRUE );
+        EnableWindow( GetDlgItem( hDlg, IDC_AXIS_TEXTS + dwInstance ), TRUE );
+        // Set the text label to the object's name
+        SetWindowText( GetDlgItem( hDlg, IDC_AXIS_TEXTS + dwInstance ), pdidoi->tszName );
     }
-    if( pdidoi->guidType == GUID_YAxis )
+    // --- POVs ---
+    else if ( dwObjType & DIDFT_POV && dwInstance < 4 ) // Check if it's a POV within our expected range (0-3)
     {
-        EnableWindow( GetDlgItem( hDlg, IDC_Y_AXIS ), TRUE );
-        EnableWindow( GetDlgItem( hDlg, IDC_Y_AXIS_TEXT ), TRUE );
+        EnableWindow( GetDlgItem( hDlg, IDC_POVS + dwInstance ), TRUE );
+        EnableWindow( GetDlgItem( hDlg, IDC_POV_TEXTS + dwInstance ), TRUE );
+        SetWindowText( GetDlgItem( hDlg, IDC_POV_TEXTS + dwInstance ), pdidoi->tszName );
     }
-    if( pdidoi->guidType == GUID_ZAxis )
+    // --- Buttons ---
+    else if ( dwObjType & DIDFT_BUTTON && dwInstance < 32 ) // Check if it's a button within our expected range (0-31)
     {
-        EnableWindow( GetDlgItem( hDlg, IDC_Z_AXIS ), TRUE );
-        EnableWindow( GetDlgItem( hDlg, IDC_Z_AXIS_TEXT ), TRUE );
+        EnableWindow( GetDlgItem( hDlg, IDC_BUTTONS + dwInstance ), TRUE );
     }
-    if( pdidoi->guidType == GUID_RxAxis )
-    {
-        EnableWindow( GetDlgItem( hDlg, IDC_X_ROT ), TRUE );
-        EnableWindow( GetDlgItem( hDlg, IDC_X_ROT_TEXT ), TRUE );
-    }
-    if( pdidoi->guidType == GUID_RyAxis )
-    {
-        EnableWindow( GetDlgItem( hDlg, IDC_Y_ROT ), TRUE );
-        EnableWindow( GetDlgItem( hDlg, IDC_Y_ROT_TEXT ), TRUE );
-    }
-    if( pdidoi->guidType == GUID_RzAxis )
-    {
-        EnableWindow( GetDlgItem( hDlg, IDC_Z_ROT ), TRUE );
-        EnableWindow( GetDlgItem( hDlg, IDC_Z_ROT_TEXT ), TRUE );
-    }
-    if( pdidoi->guidType == GUID_Slider )
-    {
-        switch( nSliderCount++ )
-        {
-            case 0 :
-                EnableWindow( GetDlgItem( hDlg, IDC_SLIDER0 ), TRUE );
-                EnableWindow( GetDlgItem( hDlg, IDC_SLIDER0_TEXT ), TRUE );
-                break;
-
-            case 1 :
-                EnableWindow( GetDlgItem( hDlg, IDC_SLIDER1 ), TRUE );
-                EnableWindow( GetDlgItem( hDlg, IDC_SLIDER1_TEXT ), TRUE );
-                break;
-        }
-    }
-    if( pdidoi->guidType == GUID_POV )
-    {
-        switch( nPOVCount++ )
-        {
-            case 0 :
-                EnableWindow( GetDlgItem( hDlg, IDC_POV0 ), TRUE );
-                EnableWindow( GetDlgItem( hDlg, IDC_POV0_TEXT ), TRUE );
-                break;
-
-            case 1 :
-                EnableWindow( GetDlgItem( hDlg, IDC_POV1 ), TRUE );
-                EnableWindow( GetDlgItem( hDlg, IDC_POV1_TEXT ), TRUE );
-                break;
-
-            case 2 :
-                EnableWindow( GetDlgItem( hDlg, IDC_POV2 ), TRUE );
-                EnableWindow( GetDlgItem( hDlg, IDC_POV2_TEXT ), TRUE );
-                break;
-
-            case 3 :
-                EnableWindow( GetDlgItem( hDlg, IDC_POV3 ), TRUE );
-                EnableWindow( GetDlgItem( hDlg, IDC_POV3_TEXT ), TRUE );
-                break;
-        }
-    }
-
-    if( pdidoi->guidType == GUID_Button )
-        EnableWindow( GetDlgItem( hDlg, IDC_BUTTON1 + DIDFT_GETINSTANCE(pdidoi->dwType)), TRUE );
-
-
-
+    // Ignore other object types.
     return DIENUM_CONTINUE;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -608,23 +547,23 @@ HRESULT UpdateInputState( HWND hDlg )
 
     // Axes
     StringCchPrintf( strText, 512, TEXT( "%ld" ), js.lX );
-    SetWindowText( GetDlgItem( hDlg, IDC_X_AXIS ), strText );
+    SetWindowText( GetDlgItem( hDlg, IDC_AXIS_1 ), strText );
     StringCchPrintf( strText, 512, TEXT( "%ld" ), js.lY );
-    SetWindowText( GetDlgItem( hDlg, IDC_Y_AXIS ), strText );
+    SetWindowText( GetDlgItem( hDlg, IDC_AXIS_2 ), strText );
     StringCchPrintf( strText, 512, TEXT( "%ld" ), js.lZ );
-    SetWindowText( GetDlgItem( hDlg, IDC_Z_AXIS ), strText );
+    SetWindowText( GetDlgItem( hDlg, IDC_AXIS_3 ), strText );
     StringCchPrintf( strText, 512, TEXT( "%ld" ), js.lRx );
-    SetWindowText( GetDlgItem( hDlg, IDC_X_ROT ), strText );
+    SetWindowText( GetDlgItem( hDlg, IDC_AXIS_4 ), strText );
     StringCchPrintf( strText, 512, TEXT( "%ld" ), js.lRy );
-    SetWindowText( GetDlgItem( hDlg, IDC_Y_ROT ), strText );
+    SetWindowText( GetDlgItem( hDlg, IDC_AXIS_5 ), strText );
     StringCchPrintf( strText, 512, TEXT( "%ld" ), js.lRz );
-    SetWindowText( GetDlgItem( hDlg, IDC_Z_ROT ), strText );
+    SetWindowText( GetDlgItem( hDlg, IDC_AXIS_6 ), strText );
 
     // Slider controls
     StringCchPrintf( strText, 512, TEXT( "%ld" ), js.rglSlider[0] );
-    SetWindowText( GetDlgItem( hDlg, IDC_SLIDER0 ), strText );
+    SetWindowText( GetDlgItem( hDlg, IDC_AXIS_7 ), strText );
     StringCchPrintf( strText, 512, TEXT( "%ld" ), js.rglSlider[1] );
-    SetWindowText( GetDlgItem( hDlg, IDC_SLIDER1 ), strText );
+    SetWindowText( GetDlgItem( hDlg, IDC_AXIS_8 ), strText );
 
     // Points of view
     StringCchPrintf( strText, 512, TEXT( "%ld" ), js.rgdwPOV[0] );
@@ -656,9 +595,9 @@ HRESULT UpdateInputState( HWND hDlg )
     for( int i = 0; i < 32; i++ )
     {
         if( js.rgbButtons[i] & 0x80 )
-            Checked = CheckDlgButton(hDlg, IDC_BUTTON1 + i, BST_CHECKED);
+            Checked = CheckDlgButton(hDlg, IDC_BUTTONS + i, BST_CHECKED);
         else
-            Checked = CheckDlgButton(hDlg, IDC_BUTTON1 + i, BST_UNCHECKED);
+            Checked = CheckDlgButton(hDlg, IDC_BUTTONS + i, BST_UNCHECKED);
     };
 #endif
     return S_OK;

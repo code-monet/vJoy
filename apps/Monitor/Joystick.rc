@@ -14,7 +14,7 @@
 // Dialog resources
 //
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-IDD_JOYST_IMM DIALOGEX 0, 0, 191, 314
+IDD_JOYST_IMM DIALOGEX 0, 0, 382, 314
 STYLE DS_ABSALIGN | DS_CENTER | DS_MODALFRAME | DS_SHELLFONT | WS_CAPTION | WS_GROUP | WS_POPUP | WS_SYSMENU
 CAPTION "DirectInput Joystick Sample "
 FONT 8, "MS Shell Dlg", 0, 0, 0
@@ -23,33 +23,33 @@ FONT 8, "MS Shell Dlg", 0, 0, 0
     LTEXT           "between updates is lost.", IDC_STATIC, 7, 25, 153, 8, SS_LEFT
     LTEXT           "This sample polls the Preferred Device Joystick 30 times a second.", IDC_STATIC, 7, 7, 153, 8, SS_LEFT
     LTEXT           "When using immediate mode, Joystick data", IDC_STATIC, 7, 17, 153, 8, SS_LEFT
-    LTEXT           "X Axis:", IDC_X_AXIS_TEXT, 18, 56, 22, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "Y Axis:", IDC_Y_AXIS_TEXT, 18, 67, 22, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "Z Axis:", IDC_Z_AXIS_TEXT, 18, 78, 22, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "X Axis:", IDC_AXIS_1_TEXT, 18, 56, 44, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "Y Axis:", IDC_AXIS_2_TEXT, 18, 67, 44, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "Z Axis:", IDC_AXIS_3_TEXT, 18, 78, 44, 8, WS_DISABLED | SS_LEFT
     LTEXT           "Buttons:", IDC_STATIC, 18, 137, 27, 8, SS_LEFT
-    LTEXT           "X Rotation:", IDC_X_ROT_TEXT, 18, 93, 36, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "POV 0:", IDC_POV0_TEXT, 100, 82, 24, 8, WS_DISABLED | SS_LEFT
-    GROUPBOX        "Joystick State", IDC_STATIC, 7, 41, 177, 246
-    LTEXT           "0", IDC_X_AXIS, 63, 56, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_Y_AXIS, 63, 67, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_Z_AXIS, 63, 78, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "", IDC_BUTTONS, 54, 137, 120, 8, SS_LEFT
-    LTEXT           "0", IDC_X_ROT, 63, 93, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_POV0, 135, 82, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "Y Rotation:", IDC_Y_ROT_TEXT, 18, 104, 36, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_Y_ROT, 63, 104, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "Z Rotation:", IDC_Z_ROT_TEXT, 18, 115, 36, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_Z_ROT, 63, 115, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "Slider 0:", IDC_SLIDER0_TEXT, 100, 56, 26, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_SLIDER0, 135, 56, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "Slider 1:", IDC_SLIDER1_TEXT, 100, 67, 26, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_SLIDER1, 135, 67, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "POV 1:", IDC_POV1_TEXT, 100, 93, 24, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_POV1, 135, 93, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "POV 2:", IDC_POV2_TEXT, 100, 104, 24, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_POV2, 135, 104, 21, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "POV 3:", IDC_POV3_TEXT, 100, 115, 24, 8, WS_DISABLED | SS_LEFT
-    LTEXT           "0", IDC_POV3, 135, 115, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "X Rotation:", IDC_AXIS_4_TEXT, 18, 93, 72, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "POV 0:", IDC_POV0_TEXT, 200, 82, 48, 8, WS_DISABLED | SS_LEFT
+    GROUPBOX        "Joystick State", IDC_STATIC, 7, 41, 354, 246
+    LTEXT           "0", IDC_AXIS_1, 126, 56, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_AXIS_2, 126, 67, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_AXIS_3, 126, 78, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "", IDC_BUTTON_BOX, 54, 137, 120, 8, SS_LEFT
+    LTEXT           "0", IDC_AXIS_4, 126, 93, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_POV0, 270, 82, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "Y Rotation:", IDC_AXIS_5_TEXT, 18, 104, 72, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_AXIS_5, 126, 104, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "Z Rotation:", IDC_AXIS_6_TEXT, 18, 115, 72, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_AXIS_6, 126, 115, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "Slider 0:", IDC_AXIS_7_TEXT, 200, 56, 52, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_AXIS_7, 270, 56, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "Slider 1:", IDC_AXIS_8_TEXT, 200, 67, 52, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_AXIS_8, 270, 67, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "POV 1:", IDC_POV1_TEXT, 200, 93, 48, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_POV1, 270, 93, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "POV 2:", IDC_POV2_TEXT, 200, 104, 48, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_POV2, 270, 104, 21, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "POV 3:", IDC_POV3_TEXT, 200, 115, 48, 8, WS_DISABLED | SS_LEFT
+    LTEXT           "0", IDC_POV3, 270, 115, 21, 8, WS_DISABLED | SS_LEFT
     AUTOCHECKBOX    "01", IDC_BUTTON1, 20, 149, 13, 14, WS_DISABLED | BS_PUSHLIKE
     AUTOCHECKBOX    "02", IDC_BUTTON2, 33, 149, 13, 14, WS_DISABLED | BS_PUSHLIKE
     AUTOCHECKBOX    "03", IDC_BUTTON3, 46, 149, 13, 14, WS_DISABLED | BS_PUSHLIKE
